@@ -4,6 +4,8 @@
 #include <string.h>
 
 #define SIZE 20
+#define MAX_INT 99999
+#define MIN_INT -99999
 
 typedef struct stack_s
 {
@@ -53,20 +55,133 @@ void ordered_queue_print(queue *q);
 
 void search_in_stack(stack *, int);
 void search_in_queue(queue *, int);
-void search_in_bst(bst*, int);
-int search_bst(bst *, int, int*);
+void search_in_bst(bst *, int);
+int search_bst(bst *, int, int *);
 
+void traverse_in_stack(stack *);
+void traverse_in_queue(queue *);
+void traverse_in_bst(bst *);
+void traverse_tree(bst *, int*, int*);
+void swap_queue_node(queue_node *, queue_node *);
 
-//Part-3
-void search(stack * stack_, queue *queue_, bst *bst_, int val_to_search)
+//Part-4
+void special_traverse(stack *stack_, queue *queue_, bst *bst_)
 {
     double stack_time, queue_time, bst_time;
     clock_t t;
 
-    printf("\n\nPART-3: \n");
+    printf("\n\n-------------------------------------------\n");
+    printf("PART-4: Special Traverse \n");
 
     t = clock();
-    search_in_stack(stack_, val_to_search);    t = clock() - t;
+    traverse_in_stack(stack_);
+    t = clock() - t;
+    stack_time = ((double)t * 1000) / CLOCKS_PER_SEC;
+
+    t = clock();
+    traverse_in_queue(queue_);
+    t = clock() - t;
+    queue_time = ((double)t * 1000) / CLOCKS_PER_SEC;
+
+    t = clock();
+    traverse_in_bst(bst_);
+    t = clock() - t;
+    bst_time = ((double)t * 1000) / CLOCKS_PER_SEC;
+
+    printf("\n\n%21c\n", '|');
+    printf("%21c\n\n", 'v');
+    printf("%10s %10s %10s %10s\n", "Structures", "Stack", "Queue", "Bst");
+    printf("%10s %10.2f %10.2f %10.2f\n", "Exec. Time", stack_time, queue_time, bst_time);
+    printf("-------------------------------------------\n");
+}
+
+void traverse_in_bst(bst *bst_){
+    int sorted[SIZE], i, j=0;
+    printf("\n\nBST NODES IN SPECIAL TRAVERSE:\n");
+    traverse_tree(bst_, sorted, &j);
+    for(i = 0; i< SIZE/2; i++){
+        printf("%d->", sorted[i]);
+        printf("%d->", sorted[SIZE - i - 1]);
+    }
+}
+
+void traverse_tree(bst *root, int* sorted, int *j)
+{
+    bst *temp = root;
+    if (temp == NULL)
+        return;
+    traverse_tree(temp->right, sorted, j);
+    sorted[(*j)++] = temp->num;
+    traverse_tree(temp->left, sorted, j);
+}
+
+void traverse_in_queue(queue *q){
+    queue_node *temp = q->front;
+    int sorted[SIZE];
+    int count = 1, k, i, sorted_index = 0;
+    int sup = MIN_INT, prev = MAX_INT; // set max int min int
+    printf("\n\nQUEUE NODES SPECIAL TRAVERSE:\n");
+
+    for (i = 0; i < 20 && temp != NULL; temp = q->front){
+        while (temp != NULL){
+            if (sup < (temp->num) && prev > (temp->num)) sup = temp->num;
+            else if (prev == temp->num) count++;
+            temp = temp->next;
+        }
+        for (k = 0; k < count; k++) if (prev != MAX_INT) sorted[sorted_index++] = prev;
+        prev = sup;
+        sup = MIN_INT;
+        count = 0;
+        i++;
+    }
+
+   for(i = 0; i< SIZE/2; i++){
+        printf("%d->", sorted[i]);
+        printf("%d->", sorted[SIZE - i - 1]);
+    }
+}
+
+void traverse_in_stack(stack *top){
+    stack *temp = top;
+    int sorted[SIZE];
+    int count = 1, k, i, sorted_index = 0;
+    int sup = MIN_INT, prev = MAX_INT; // set max int min int
+    printf("\n\nSTACK NODES SPECIAL TRAVERSE:\n");
+
+    for (i = 0; i < 20 && temp != NULL; temp = top){
+        while (temp != NULL){
+            if (sup < (temp->num) && prev > (temp->num)) sup = temp->num;
+            else if (prev == temp->num) count++;
+            temp = temp->next;
+        }
+        for (k = 0; k < count; k++) if (prev != MAX_INT) sorted[sorted_index++] = prev;
+        prev = sup;
+        sup = MIN_INT;
+        count = 0;
+        i++;
+    }
+
+   for(i = 0; i< SIZE/2; i++){
+        printf("%d->", sorted[i]);
+        printf("%d->", sorted[SIZE - i - 1]);
+    }
+}
+
+
+
+
+//Part-3
+void search(stack *stack_, queue *queue_, bst *bst_, int val_to_search)
+{
+    double stack_time, queue_time, bst_time;
+    clock_t t;
+
+    printf("\n\n-------------------------------------------\n");
+    printf("PART-3: Search a Value\n");
+
+    t = clock();
+    search_in_stack(stack_, val_to_search);
+    t = clock() - t;
     stack_time = ((double)t * 1000) / CLOCKS_PER_SEC;
 
     t = clock();
@@ -79,36 +194,42 @@ void search(stack * stack_, queue *queue_, bst *bst_, int val_to_search)
     t = clock() - t;
     bst_time = ((double)t * 1000) / CLOCKS_PER_SEC;
 
-    printf("\n-------------------------------------------\n");
-    printf("Part-2 Print Structs in Descending Order:\n");
+    printf("\n%21c\n", '|');
+    printf("%21c\n\n", 'v');
     printf("%10s %10s %10s %10s\n", "Structures", "Stack", "Queue", "Bst");
     printf("%10s %10.2f %10.2f %10.2f\n", "Exec. Time", stack_time, queue_time, bst_time);
     printf("-------------------------------------------\n");
 }
 
-void search_in_bst(bst *bst_, int val){
+void search_in_bst(bst *bst_, int val)
+{
     int step = 0;
     int count = search_bst(bst_, val, &step);
-    printf("\n%d result founded on %2dth step on queue for value %d. \n", count, step, val);
+    printf("\n%d result founded on %2dth step on bst for value %d. \n", count, step, val);
 }
 
-int search_bst(bst *bst_, int val, int *step){
-    if(bst_ == NULL){
+int search_bst(bst *bst_, int val, int *step)
+{
+    if (bst_ == NULL)
         return 0;
-    } 
     (*step)++;
-    if(val == bst_->num) return 1 + search_bst(bst_->right, val, step); 
-    else if(val > bst_->num) return search_bst(bst_->right, val, step);
-    else if(val < bst_->num) return search_bst(bst_->left, val, step);
-    
+    if (val == bst_->num)
+        return 1 + search_bst(bst_->right, val, step);
+    else if (val > bst_->num)
+        return search_bst(bst_->right, val, step);
+    else if (val < bst_->num)
+        return search_bst(bst_->left, val, step);
 }
 
-void search_in_queue(queue *q, int val){
+void search_in_queue(queue *q, int val)
+{
     queue_node *temp = q->front;
     int count = 0, step = 0, totalStep = 0;
-    while(temp != NULL){
-        totalStep ++;
-        if(temp->num == val){
+    while (temp != NULL)
+    {
+        totalStep++;
+        if (temp->num == val)
+        {
             count++;
             step = totalStep;
         }
@@ -117,13 +238,15 @@ void search_in_queue(queue *q, int val){
     printf("\n%d result founded on %2dth step on queue for value %d. \n", count, step, val);
 }
 
-void search_in_stack(stack * stack_, int val)
+void search_in_stack(stack *stack_, int val)
 {
     stack *temp = stack_;
     int count = 0, step = 0, totalStep = 0;
-    while(temp != NULL){
-        totalStep ++;
-        if(temp->num == val){
+    while (temp != NULL)
+    {
+        totalStep++;
+        if (temp->num == val)
+        {
             count++;
             step = totalStep;
         }
@@ -138,7 +261,8 @@ void ordered_print(stack *stack_, queue *queue_, bst *bst_)
     double stack_time, queue_time, bst_time;
     clock_t t;
 
-    printf("\n\nPART-2:\n");
+    printf("\n-------------------------------------------\n");
+    printf("PART-2: Print Structs in Descending Order\n");
 
     t = clock();
     ordered_queue_print(queue_);
@@ -150,71 +274,16 @@ void ordered_print(stack *stack_, queue *queue_, bst *bst_)
     t = clock() - t;
     stack_time = ((double)t * 1000) / CLOCKS_PER_SEC;
 
-      t = clock();
+    t = clock();
     ordered_bst_print(bst_);
     t = clock() - t;
     bst_time = ((double)t * 1000) / CLOCKS_PER_SEC;
 
-    printf("\n-------------------------------------------\n");
-    printf("Part-2 Print Structs in Descending Order:\n");
+    printf("\n%21c\n", '|');
+    printf("%21c\n\n", 'v');
     printf("%10s %10s %10s %10s\n", "Structures", "Stack", "Queue", "Bst");
     printf("%10s %10.2f %10.2f %10.2f\n", "Exec. Time", stack_time, queue_time, bst_time);
     printf("-------------------------------------------\n");
-}
-
-void ordered_queue_print(queue *q)
-{
-    queue_node *temp = q->front;
-    int max_int = 1000, min_int = -1000, count = 1, k;
-    int sup = min_int, i, prev = max_int; // set max int min int
-    printf("\nQUEUE NODES IN DESCENDING ORDER:\n");
-
-    for (i = 0; i < 20 && temp != NULL; temp = q->front)
-    {
-        while (temp != NULL)
-        {
-            if (sup < (temp->num) && prev > (temp->num))
-                sup = temp->num;
-            else if (prev == temp->num)
-                count++;
-            temp = temp->next;
-        }
-        for (k = 0; k < count; k++)
-            if (prev != max_int)
-                printf("%d->", prev);
-        prev = sup;
-        sup = min_int;
-        count = 0;
-        i++;
-    }
-
-}
-
-void ordered_stack_print(stack *top)
-{
-    stack *temp = top;
-    int max_int = 1000, min_int = -1000, count = 1, k;
-    int sup = min_int, i, prev = max_int; // set max int min int
-    printf("\n\nSTACK NODES IN DESCENDING ORDER:\n");
-
-    for (i = 0; i < 20 && temp != NULL; temp = top)
-    {
-        while (temp != NULL)
-        {
-            if (sup < (temp->num) && prev > (temp->num))
-                sup = temp->num;
-            else if (prev == temp->num)
-                count++;
-            temp = temp->next;
-        }
-        for (k = 0; k < count; k++)
-            if (prev != max_int)
-                printf("%d->", prev);
-        prev = sup;
-        sup = min_int;
-        count = 0;
-        i++;
-    }
 }
 
 void ordered_bst_print(bst *bst_)
@@ -228,12 +297,64 @@ void bst_print(bst *node)
 {
     bst *temp = node;
     if (node == NULL)
-    {
         return;
-    }
     bst_print(temp->right);
     printf("%d->", temp->num);
     bst_print(temp->left);
+}
+
+void ordered_queue_print(queue *q)
+{
+    queue_node *temp = q->front;
+    int count = 1, k, i;
+    int sup = MIN_INT, prev = MAX_INT;
+    printf("\nQUEUE NODES IN DESCENDING ORDER:\n");
+
+    for (i = 0; i < 20 && temp != NULL; temp = q->front)
+    {
+        while (temp != NULL)
+        {
+            if (sup < (temp->num) && prev > (temp->num))
+                sup = temp->num;
+            else if (prev == temp->num)
+                count++;
+            temp = temp->next;
+        }
+        for (k = 0; k < count; k++)
+            if (prev != MAX_INT)
+                printf("%d->", prev);
+        prev = sup;
+        sup = MIN_INT;
+        count = 0;
+        i++;
+    }
+}
+
+void ordered_stack_print(stack *top)
+{
+    stack *temp = top;
+    int count = 1, k, i;
+    int sup = MIN_INT, prev = MAX_INT; // set max int min int
+    printf("\n\nSTACK NODES IN DESCENDING ORDER:\n");
+
+    for (i = 0; i < 20 && temp != NULL; temp = top)
+    {
+        while (temp != NULL)
+        {
+            if (sup < (temp->num) && prev > (temp->num))
+                sup = temp->num;
+            else if (prev == temp->num)
+                count++;
+            temp = temp->next;
+        }
+        for (k = 0; k < count; k++)
+            if (prev != MAX_INT)
+                printf("%d->", prev);
+        prev = sup;
+        sup = MIN_INT;
+        count = 0;
+        i++;
+    }
 }
 
 // Part-1
@@ -242,7 +363,8 @@ void fill_structures(stack **stack_, queue **queue_, bst **bst_, int data[20])
     double stack_time, queue_time, bst_time;
     clock_t t;
 
-    printf("\nPart-1:\n\n");
+    printf("\n-------------------------------------------\n");
+    printf("PART-1: Fill Structers\n\n");
 
     t = clock();
     fill_stack(stack_, data);
@@ -259,11 +381,11 @@ void fill_structures(stack **stack_, queue **queue_, bst **bst_, int data[20])
     t = clock() - t;
     bst_time = ((double)t * 1000) / CLOCKS_PER_SEC;
 
-    printf("-------------------------------------------\n");
-    printf("Part-1 Fill Structers:\n");
+    printf("\n%21c\n", '|');
+    printf("%21c\n\n", 'v');
     printf("%10s %10s %10s %10s\n", "Structures", "Stack", "Queue", "Bst");
     printf("%10s %10.2f %10.2f %10.2f\n", "Exec. Time", stack_time, queue_time, bst_time);
-    printf("-------------------------------------------\n");
+    printf("-------------------------------------------\n\n");
 }
 
 void fill_bst(bst **bst_, int data[20])
@@ -374,6 +496,6 @@ int main()
     fill_structures(&stack_, &queue_, &bst_, data);
     ordered_print(stack_, queue_, bst_);
     search(stack_, queue_, bst_, 5);
-    //special_traverse(stack_, queue_, bst_);
+    special_traverse(stack_, queue_, bst_);
     return 0;
 }
