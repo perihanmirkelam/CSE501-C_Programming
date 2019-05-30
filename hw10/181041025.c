@@ -62,8 +62,8 @@ void traverse_in_stack(stack *);
 void traverse_in_queue(queue *);
 void traverse_in_bst(bst *);
 void traverse_tree(bst *, int*, int*);
-void swap_queue_node(queue_node *, queue_node *);
 void swap_stack(stack *, stack *);
+void swap_queue(queue_node *, queue_node *);
 
 //Part-4
 void special_traverse(stack *stack_, queue *queue_, bst *bst_)
@@ -117,44 +117,47 @@ void traverse_tree(bst *root, int* sorted, int *j)
 }
 
 void traverse_in_queue(queue *q){
-    queue_node *temp = q->front;
-    int sorted[SIZE];
-    int count = 1, k, i, sorted_index = 0;
-    int sup = MIN_INT, prev = MAX_INT; // set max int min int
-    printf("\n\nQUEUE NODES SPECIAL TRAVERSE:\n");
+  queue_node *p1, *p2, *big, *small;
+  int i=0, j=0;
 
-    for (i = 0; i < SIZE && temp != NULL; temp = q->front){
-        while (temp != NULL){
-            if (sup < (temp->num) && prev > (temp->num)) sup = temp->num;
-            else if (prev == temp->num) count++;
-            temp = temp->next;
-        }
-        for (k = 0; k < count; k++) if (prev != MAX_INT) sorted[sorted_index++] = prev;
-        prev = sup;
-        sup = MIN_INT;
-        count = 0;
-        i++;
-    }
+ for(p1 = q->front; p1->next != NULL; p1 = p1->next)
+ 	for(p2 = p1->next; p2 != NULL; p2 = p2->next)
+ 		if(p1->num < p2->num) swap_queue(p1, p2);
 
-   for(i = 0; i< SIZE/2; i++){
-        printf("%d->", sorted[i]);
-        printf("%d->", sorted[SIZE - i - 1]);
-    }
+
+
+  printf("\n\nSTACK NODES SPECIAL TRAVERSE:\n");
+  for(big = q->front; i< (SIZE/2); i++){
+       printf("%d->", big->num);
+       for(small = q->front; j<(SIZE)-i-1 ; j++){
+        small = small->next;
+       }
+      printf("%d->", small->num);
+      big = big->next;
+      j=0;
+   }
+}
+
+void swap_queue(queue_node *p1, queue_node *p2){
+	int temp;
+	temp = p1->num;
+	p1->num = p2->num;
+	p2->num = temp;
 }
 
 void traverse_in_stack(stack *top){
   stack *p1, *p2, *big, *small;
   int i=0, j=0;
 
- 	for(p1 = top; p1->next != NULL; p1 = p1->next)
- 		for(p2 = p1->next; p2 != NULL; p2 = p2->next)
- 			if(p1->num < p2->num) swap_stack(p1, p2);
+ for(p1 = top; p1->next != NULL; p1 = p1->next)
+ 	for(p2 = p1->next; p2 != NULL; p2 = p2->next)
+ 		if(p1->num < p2->num) swap_stack(p1, p2);
 
   printf("\n\nSTACK NODES SPECIAL TRAVERSE:\n");
-    for(big = top; i< (SIZE/2) -1; i++){
+    for(big = top; i< (SIZE/2); i++){
        printf("%d->", big->num);
-       for(small = big->next; j<SIZE/2; j++){
-         small = small->next;
+       for(small = top; j<(SIZE)-i-1 ; j++){
+        small = small->next;
        }
       printf("%d->", small->num);
       big = big->next;
