@@ -356,28 +356,26 @@ void buy_property(struct block* current_block, struct player* current_player){
       if(current_player->account >= current_block->price){
         printf("Do you want to buy the property %s(%d$)\n1) Yes\n2) No\n", current_block->name, current_block->price);
         state = scanf("%d", &buy);
-        if(state == 1){
-          if(buy == 1){
-            enoughMoneyFor = (current_player->account - current_block->price) / current_block->house_price;
-            if(enoughMoneyFor>3) enoughMoneyFor = 3;
-            printf("How many house do you want to build on %s? (Up to %d)\n", current_block->name, enoughMoneyFor);
-            state = scanf("%d", &constructedHouseNumber);
+        if(state == 1 && buy == 1){
+          enoughMoneyFor = (current_player->account - current_block->price) / current_block->house_price;
+          if(enoughMoneyFor>3) enoughMoneyFor = 3;
+          printf("How many house do you want to build on %s? (Up to %d)\n", current_block->name, enoughMoneyFor);
+          state = scanf("%d", &constructedHouseNumber);
 
-            if(state && constructedHouseNumber>0 && constructedHouseNumber<=enoughMoneyFor){
-              current_player->account -= current_block->price;
-              if(current_player->account > constructedHouseNumber * current_block->house_price){
-                current_player->account -= constructedHouseNumber * current_block->house_price;
-                current_block->owner = *current_player;
-                current_block->house_count = constructedHouseNumber;
-                // printBlock(current_block);
-                addBlockToPlayer(current_block, current_player);
-              } else {
-                printf("You don't have enough money for build %d house.\n", constructedHouseNumber);
-              }
+          if(state && constructedHouseNumber>0 && constructedHouseNumber<=enoughMoneyFor){
+            current_player->account -= current_block->price;
+            if(current_player->account > constructedHouseNumber * current_block->house_price){
+              current_player->account -= constructedHouseNumber * current_block->house_price;
+              current_block->owner = *current_player;
+              current_block->house_count = constructedHouseNumber;
+              printBlock(current_block);
+              addBlockToPlayer(current_block, current_player);
             } else {
-              printf("Wrong input! Try again.\n");
-              buy_property(current_block, current_player);
+              printf("You don't have enough money for build %d house.\n", constructedHouseNumber);
             }
+          } else {
+            printf("Wrong input! Try again.\n");
+            buy_property(current_block, current_player);
           }
         } else {
             printf("Wrong Input! Try again.\n");
